@@ -10,12 +10,10 @@ import Foundation
 
 class RequestBuilder {
     private var apiKey: String {
-        "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"
+        "AIzaSyC8ScATYbAPnKn68iEdRGn3L7xGn9EBv-I"
     }
-    
-    func builderRequest(prompt: String, url:URL?) -> URLRequest?{
-        
-        guard let apiUrl = url else {return nil}
+    func builderRequest(prompt: String, url: URL?, apiKey: String) -> URLRequest? {
+        guard let apiUrl = url else { return nil }
         
         var request = URLRequest(url: apiUrl)
         request.httpMethod = "POST"
@@ -23,16 +21,22 @@ class RequestBuilder {
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
         
         let parameters: [String: Any] = [
-            "model" : "gpt-4o-mini",
-            "message": [
+            "model": "gemini-1.5-flash",
+            "messages": [
                 ["role": "user", "content": prompt]
             ]
         ]
-        
-        guard let jsonData = try? JSONSerialization.data(withJSONObject: parameters) else {
+        do {
+            let jsonData = try JSONSerialization.data(withJSONObject: parameters, options: [])
+            request.httpBody = jsonData
+            
+            if let jsonString = String(data: jsonData, encoding: .utf8) {
+                print("Request Body: \(jsonString)")
+            }
+        } catch {
+            print("JSON serialization error: \(error.localizedDescription)")
             return nil
         }
-        request.httpBody = jsonData
         return request
     }
 }

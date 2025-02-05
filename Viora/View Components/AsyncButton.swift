@@ -22,15 +22,15 @@ struct AsyncButton<Label: View>: View {
     }
     
     var body: some View {
-           Button {
-               isRunning = true
-               Task {
-                   await action()
-                   await MainActor.run { isRunning = false }
-               }
-           } label: {
-               label
-           }
-           .disabled(isRunning)
-       }
-   }
+        Button {
+            isRunning = true
+            Task {
+                await action()
+                isRunning = false
+            }
+        } label: {
+            label
+        }
+        .disabled(isRunning)
+    }
+}

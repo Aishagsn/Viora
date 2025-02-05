@@ -5,6 +5,7 @@
 //  Created by Aisha on 04.02.25.
 //
 
+
 import SwiftUI
 
 struct ContentView: View {
@@ -13,42 +14,53 @@ struct ContentView: View {
     @State private var isLoading: Bool = false
     
     let aiService = AIService()
+    let apiKey = "AIzaSyC8ScATYbAPnKn68iEdRGn3L7xGn9EBv-I"
     
     var body: some View {
         VStack {
-            TextField("Enter your prompt", text: $inputText).autocorrectionDisabled().padding()
-            .border(Color.purple)
+            TextField("Enter your question...", text: $inputText)
+                .textFieldStyle(RoundedBorderTextFieldStyle())
+                .padding()
             
-            AsyncButton {
-//                isLoading = true
-//                responseText = await aiService.getAIResponse(prompt: inputText)
-//                isLoading = false
-//            } label: {
-//                Text("Ask Alora").padding().background(isLoading ? Color.gray : Color.blue).foregroundStyle(.white).cornerRadius(8)
-                await MainActor.run { isLoading = true }
-                   let response = await aiService.getAIResponse(prompt: inputText)
-                   await MainActor.run {
-                       responseText = response
-                       isLoading = false
-                   }
-               } label: {
-                   Text("Ask Alora")
-                       .padding()
-                       .background(isLoading ? Color.gray : Color.blue)
-                       .foregroundStyle(.white)
-                       .cornerRadius(8)
+            Button(action: {
+                Task {
+                    await fetchAIResponse()
+                }
+            }) {
+                Text("Ask Viora")
+                    .padding()
+                    .frame(maxWidth: .infinity)
+                    .background(isLoading ? Color.gray : Color.blue)
+                    .foregroundColor(.white)
+                    .cornerRadius(8)
             }
+            .disabled(isLoading)
+            .padding()
             
             VStack {
-                ProgressView().opacity(isLoading ? 1 : 0)
-                ScrollView {
-                    Text(responseText).opacity(isLoading ? 0.5 : 1)
+                if isLoading {
+                    ProgressView()
+                        .padding()
                 }
+                
+                ScrollView {
+                    Text(responseText)
+                        .padding()
+                        .opacity(isLoading ? 0.5 : 1)
+                }
+                .frame(maxHeight: isLoading ? 100 : .infinity)
             }
+            .padding()
         }
         .padding()
     }
+    
+    private func fetchAIResponse() async {
+        isLoading = true
+        responseText = await aiService.getAIResponse(prompt: inputText, apiKey: apiKey)
+        isLoading = false
+    }
 }
-#Preview {
-    ContentView()
-}
+
+//#Preview {
+//    ContentView()

@@ -6,11 +6,17 @@
 //
 
 
-struct AIResponse: Codable {
-    let id: String
-    let object: String
-    let created: Int
-    let model: String
+struct AIResponse: Decodable {
+    struct Choice: Decodable {
+        struct Message: Decodable {
+            let content: String
+        }
+        let message: Message
+    }
+    
     let choices: [Choice]
     
+    func getFirstResponse() -> String {
+        return choices.first?.message.content ?? "No response from AI."
+    }
 }
